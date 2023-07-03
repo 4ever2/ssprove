@@ -979,6 +979,7 @@ Module OVN (π2 : CDSParams) (Alg2 : SigmaProtocolAlgorithms π2).
      #assert Sigma1.MyParam.R (otf (fto (expgn_rec (T:=gT) g (otf x)))) (otf x) ;;
      x1 ← sample uniform Sigma1.MyAlg.i_witness ;;
      #put Sigma1.MyAlg.commit_loc := x1 ;;
+     #put RO1.queries_loc := emptym ;;
      x2 ← get RO1.queries_loc ;;
      match x2 (Sigma1.Sigma.prod_assoc (fto (expgn_rec (T:=gT) g (otf x)), fto (expgn_rec (T:=gT) g (otf x1)))) with
      | Some a =>
@@ -987,6 +988,7 @@ Module OVN (π2 : CDSParams) (Alg2 : SigmaProtocolAlgorithms π2).
          #assert Sigma1.MyParam.R (otf (fto (expgn_rec (T:=gT) g (otf x3)))) (otf x3) ;;
          x5 ← sample uniform Sigma1.MyAlg.i_witness ;;
          #put Sigma1.MyAlg.commit_loc := x5 ;;
+         #put RO1.queries_loc := emptym ;;
          v0 ← get RO1.queries_loc ;;
          match v0 (Sigma1.Sigma.prod_assoc (fto (expgn_rec (T:=gT) g (otf x3)), fto (expgn_rec (T:=gT) g (otf x5)))) with
          | Some a0 =>
@@ -1040,6 +1042,7 @@ Module OVN (π2 : CDSParams) (Alg2 : SigmaProtocolAlgorithms π2).
          #assert Sigma1.MyParam.R (otf (fto (expgn_rec (T:=gT) g (otf x3)))) (otf x3) ;;
          x5 ← sample uniform Sigma1.MyAlg.i_witness ;;
          #put Sigma1.MyAlg.commit_loc := x5 ;;
+         #put RO1.queries_loc := emptym ;;
          v0 ← get RO1.queries_loc ;;
          match v0 (Sigma1.Sigma.prod_assoc (fto (expgn_rec (T:=gT) g (otf x3)), fto (expgn_rec (T:=gT) g (otf x5)))) with
          | Some a0 =>
@@ -1168,6 +1171,136 @@ Module OVN (π2 : CDSParams) (Alg2 : SigmaProtocolAlgorithms π2).
     ssprove_sync_eq=>rel1.
     ssprove_sync_eq=>r1.
     ssprove_sync_eq.
+    ssprove_code_simpl.
+
+    (* ssprove_sync_eq. *)
+    (* ssprove_sync_eq. *)
+    (* intros. *)
+    
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ #put _ := _ ;; getr _ ?x ≈ #put _ := _ ;; getr _ ?y ⦃ _ ⦄] =>
+        set (x) ; set (y)
+    end.
+
+    apply (r_transL (#put RO1.queries_loc := emptym ;; r emptym)).
+    1: apply r_put_get.
+
+    apply (r_transL (#put RO1.queries_loc := emptym ;; r0 emptym)).
+    2: apply r_put_get.
+
+    ssprove_sync_eq.
+    subst r r0. hnf.
+
+    simpl.
+
+    ssprove_code_simpl.
+    ssprove_sync_eq=>a.
+    ssprove_sync_eq.
+    ssprove_sync_eq=>v.
+
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ @pkg_core_definition.sampler _ _ ?x ≈ @pkg_core_definition.sampler _ _ ?y ⦃ _ ⦄] =>
+        set (temp1 := x) ; set (temp2 := y)
+    end.
+    
+    apply r_uniform_bij with (f := (fun (x : Arit (@uniform i_secret Secret_pos)) => (x : Arit (@uniform i_secret Sigma1.MyParam.Witness_pos)))).
+    1: exact (inv_bij (fun x => erefl)).
+    intros.
+    subst temp1 temp2. hnf.
+    ssprove_code_simpl.
+    simpl.
+
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ ?x ≈ bind (assertD ?v ?z) ?y ⦃ _ ⦄] =>
+        set (temp1 := x) ; set (temp2 := y) ; set (temp3 := z) ; set (temp4 := v) in *
+    end.
+
+    change (prod_choiceType _ _) with ( (chElement ((( chFin (mkpos #|gT|) × chFin (mkpos #|gT|)) × chFin (mkpos #|'Z_Sigma1.q|)) × chFin (mkpos #|'Z_Sigma1.q|)))) in *.
+    
+    apply (r_transR _  (@assertD _ temp4 (fun z => x ← temp3 z ;; temp2 x))).
+    1:{
+      eapply r_transL.
+      2:{
+        apply r_bind_assertD_sym.
+      }
+      apply rreflexivity_rule.
+    }
+    subst temp1 temp2 temp3 temp4. hnf.
+    
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ assertD _ ?x ≈ assertD _ ?y ⦃ _ ⦄] =>
+        set (temp1 := x) ; set (temp2 := y)
+    end.
+
+    change (Sigma1.MyParam.Witness) with (Secret) in *.
+    change (raw_code _) with (raw_code (chElement (chFin (mkpos #|gT|)))) in temp1.
+    (* Unset Printing Notations. *)
+    apply (@r_assertD_same (chFin (mkpos #|gT|)) (Sigma1.MyParam.R (otf (fto (expgn_rec (T:=gT) g (otf x0)))) (otf x0))).
+    intros.
+
+    subst temp1 temp2. hnf.
+    simpl.
+    ssprove_code_simpl.
+    ssprove_code_simpl_more.
+    simpl.
+    ssprove_sync_eq=>a0.
+    ssprove_sync_eq.
+
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ #put _ := _ ;; getr _ ?x ≈ #put _ := _ ;; getr _ ?y ⦃ _ ⦄] =>
+        set (x) ; set (y)
+    end.
+
+    apply (r_transL (#put RO1.queries_loc := emptym ;; r emptym)).
+    1: apply r_put_get.
+
+    apply (r_transL (#put RO1.queries_loc := emptym ;; r0 emptym)).
+    2: apply r_put_get.
+    
+    ssprove_sync_eq.
+    subst r r0. hnf.
+
+    simpl.
+
+    ssprove_sync_eq=>a1.
+    ssprove_sync_eq.
+    ssprove_sync_eq=>a2.
+
+        match goal with
+    | |- context [⊢ ⦃ _ ⦄ bind (assertD ?v ?z) ?y ≈ ?x  ⦃ _ ⦄] =>
+        set (temp1 := x) ; set (temp2 := y) ; set (temp3 := z) ; set (temp4 := v) in *
+    end.
+
+    change (prod_choiceType _ _) with ( (chElement ((( chFin (mkpos #|gT|) × chFin (mkpos #|gT|)) × chFin (mkpos #|'Z_Sigma1.q|)) × chFin (mkpos #|'Z_Sigma1.q|)))) in *.
+    
+    apply (r_transL  (@assertD _ temp4 (fun z => x ← temp3 z ;; temp2 x))).
+    1:{
+      eapply r_transR.
+      1:{
+        apply r_bind_assertD_sym.
+      }
+      apply rreflexivity_rule.
+    }
+    subst temp1 temp2 temp3 temp4. hnf.
+
+    match goal with
+    | |- context [⊢ ⦃ _ ⦄ assertD _ ?x ≈ assertD _ ?y ⦃ _ ⦄] =>
+        set (temp1 := x) ; set (temp2 := y)
+    end.
+
+    change (Sigma1.MyParam.Witness) with (Secret) in *.
+    (* Unset Printing Notations. *)
+    apply (@r_assertD_same (chFin (mkpos _)) (eq_op _ n)).
+
+    intros.
+    subst temp1 temp2. hnf.
+
+    ssprove_sync_eq.
+    ssprove_sync_eq=>a3.
+    ssprove_sync_eq=>a4.
+    apply r_ret.
+    intros. subst.
+    reflexivity.
 
     (* ssprove_sync_eq=>queries.
     destruct (queries (Sigma1.Sigma.prod_assoc (fto (g ^+ otf x), fto (g ^+ otf r1)))) eqn:e.
@@ -1175,7 +1308,8 @@ Module OVN (π2 : CDSParams) (Alg2 : SigmaProtocolAlgorithms π2).
     - simpl.
       ssprove_code_simpl.
       ssprove_sync_eq=>?. *)
-  Admitted.
+    (* Admitted. *)
+    Qed.
 
   #[tactic=notac] Equations? Aux_realised (b : bool) (i j : pid) m f' :
     package (DDH.DDH_locs :|: P_i_locs i :|: combined_locations) Game_import [interface #val #[ Exec i ] : 'bool → 'public] :=
